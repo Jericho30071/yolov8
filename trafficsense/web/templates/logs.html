@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+  <div class="tabs">
+    {% for t in tables %}<a href="/logs?table={{ t }}" class="{{ 'on' if t == table }}">{{ t.replace('_', ' ') }}</a>{% endfor %}
+    <a href="/export/{{ table }}.csv" class="export">Export CSV</a>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr>{% for c in cols %}<th>{{ c }}</th>{% endfor %}</tr></thead>
+      <tbody>
+      {% for r in rows %}<tr>{% for v in r %}<td>{{ (v | round(2)) if v is float else (v if v is not none else '') }}</td>{% endfor %}</tr>{% endfor %}
+      {% if not rows %}<tr><td colspan="{{ cols | length }}" class="muted">No records yet.</td></tr>{% endif %}
+      </tbody>
+    </table>
+  </div>
+  <p class="muted">Latest 200 rows. Export downloads the full table.</p>
+</section>
+{% endblock %}

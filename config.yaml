@@ -1,0 +1,86 @@
+# TrafficSense configuration — every tunable value of the system lives here.
+# Paths are relative to the project root (D:\YOLOV8).
+
+# Localized CDO vehicle classes (order = YOLO class id 0-7). Definitions and labeling
+# rules: README.md -> "Vehicle classes".
+classes: [motorcycle, motorela, multicab, jeepney, car, suv_van, bus, truck]
+
+model:
+  # Only the lane zone is analysed (cropped + masked), so the small yolov8n at 800 px finds
+  # as many vehicles as yolov8m at ~24 ms/frame on the GTX 960. After training use
+  # models/trafficsense_best.pt. Raspberry Pi: NCNN export at imgsz 416 (see README).
+  weights: models/yolov8n.pt
+  imgsz: 800
+  conf: 0.3             # untracked detections below this are discarded (failsafe: low-confidence filter)
+  iou: 0.5
+  device: ""            # "" = auto (GPU if available), "cpu", or "0"
+  tracker: configs/tracker.yaml   # tuned ByteTrack; or bytetrack.yaml / botsort.yaml (Ultralytics built-ins)
+  # Only used with the stock COCO weights, until the custom model trained on your footage
+  # replaces them. COCO knows only car / motorcycle / bus / truck, so motorela, multicab and
+  # suv_van cannot be told apart yet (motorelas appear as motorcycle, multicabs and SUVs as
+  # car). On CDO city roads COCO's "truck" is nearly always a jeepney, hence the mapping below.
+  coco_class_map:
+    car: car
+    motorcycle: motorcycle
+    bus: bus
+    truck: jeepney
+
+# Lanes in signal order. A lane with `source: null` has no camera and always runs
+# on fixed timing (the prototype monitors one lane, per Section 3.2 of the paper).
+# `zone` is the monitored area in front of the stop line and `count_line` the line
+# vehicles cross; both are normalized (0–1) image coordinates. These are defaults: a video
+# with its own <video>.zone.json (press z in detect.py to draw one) uses that instead.
+lanes:
+  - id: S1
+    name: Lane 1
+    direction: Northbound
+    source: data/raw_videos/sample.mp4   # video file path, or webcam index such as 0
+    loop_video: true
+    zone: [[0.20, 0.45], [0.80, 0.45], [0.98, 0.98], [0.02, 0.98]]
+    count_line: [[0.02, 0.75], [0.98, 0.75]]
+  - id: S2
+    name: Lane 2
+    direction: Eastbound
+    source: null
+  - id: S3
+    name: Lane 3
+    direction: Southbound
+    source: null
+  - id: S4
+    name: Lane 4
+    direction: Westbound
+    source: null
+
+signal:
+  mode: adaptive          # adaptive | fixed  (fixed = conventional baseline for comparison)
+  fixed_green: 30         # green time in fixed mode, for camera-less lanes, and in failsafe
+  min_green: 5            # adaptive green never ends earlier than this
+  max_green: 30           # "normal signal timing" while vehicles keep arriving
+  empty_timeout: 5        # seconds the lane must stay empty before the green is stopped
+  yellow: 3
+  all_red: 1              # clearance interval between lanes (0 to disable)
+  skip_empty_lanes: false # true = skip a lane's green entirely if it is already empty
+  count_based: false      # true = green length scales with the queue (Section 1.5 Scope)
+  base_green: 10          # count_based only: base_green + per_vehicle * queued, within min/max
+  per_vehicle: 2
+
+failsafe:
+  frame_timeout: 3.0      # no frames for this long = camera failure
+  error_limit: 3          # consecutive inference errors = detection failure
+  recover_after: 5.0      # seconds of healthy frames before adaptive control resumes
+
+hardware:
+  driver: mock            # mock (PC testing) | gpio (Raspberry Pi + relay module)
+  relay_active_low: true  # most 4-channel relay boards switch ON when the pin is LOW
+  pins:                   # BCM numbering; only lanes listed here drive physical lights
+    S1: {red: 17, yellow: 27, green: 22}
+
+database:
+  path: data/trafficsense.db
+
+web:
+  host: 0.0.0.0
+  port: 8000
+  secret_key: change-this-secret-before-deployment
+  default_admin: {username: admin, password: admin123}   # created on first run — change it
+  stream_fps: 10

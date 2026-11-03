@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="stats">
+  <div class="card stat"><span>Mode</span><b id="s-mode">–</b></div>
+  <div class="card stat"><span>Active lane / phase</span><b id="s-phase">–</b></div>
+  <div class="card stat"><span>Green stops (empty lane)</span><b id="s-stops">0</b></div>
+  <div class="card stat"><span>Idle green avoided</span><b id="s-saved">0 s</b></div>
+  <div class="card stat"><span>Avg. waiting time</span><b id="s-wait">0 s</b></div>
+  <div class="card stat"><span>Faults</span><b id="s-faults">0</b></div>
+</section>
+<section class="lanes" id="lanes"></section>
+{% set first = lanes | selectattr('monitored') | first %}
+{% if first %}
+<section class="card">
+  <h2>Live feed · {{ first.id }}</h2>
+  <img class="feed" src="/video/{{ first.id }}" alt="Live feed {{ first.id }}">
+</section>
+{% endif %}
+{% endblock %}

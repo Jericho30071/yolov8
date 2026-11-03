@@ -1,0 +1,13 @@
+# ByteTrack tuned for traffic (Ultralytics built-in tracker; set `tracker:` in config.yaml).
+# The detector passes boxes down to 0.1 confidence; only confident ones start a track.
+# Tuned on SAMPLE1 (full 2 min, fixed overhead camera) against the Ultralytics defaults:
+# mid-zone ID breaks 39 -> 17, vehicles counted at the line 37 -> 40, same speed.
+# BoT-SORT gave no improvement here (its camera-motion compensation is for moving cameras).
+tracker_type: bytetrack
+track_high_thresh: 0.2   # first-stage matching uses boxes above this (default 0.25)
+track_low_thresh: 0.1    # second stage recovers weak boxes of vehicles already tracked (far / occluded)
+new_track_thresh: 0.3    # confidence needed to start a new vehicle track (fewer ghost boxes)
+track_buffer: 45         # frames a lost vehicle is remembered (1.5 s at 30 FPS) so its ID survives occlusion
+match_thresh: 0.95       # looser IoU matching (default 0.8): vehicles approaching the camera grow and
+                         # move fast between frames, so strict matching broke their tracks
+fuse_score: True

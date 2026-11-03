@@ -1,0 +1,6 @@
+# Raspberry Pi 4 (64-bit Raspberry Pi OS). CPU PyTorch comes from the default index.
+#   python -m pip install -r requirements-pi.txt
+-r requirements.txt
+ncnn                      # fast CPU inference for the exported model
+gpiozero                  # relay control
+lgpio

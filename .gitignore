@@ -1,0 +1,28 @@
+# environment / caches
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# training + inference outputs
+runs/
+weights/
+reports/
+*_ncnn_model/
+*.onnx
+
+# model weights: only the small stock model is versioned (the Pi needs one to start)
+*.pt
+!models/yolov8n.pt
+
+# data: videos, frames and datasets stay local (large, and recorded footage shows people/plates)
+data/raw_videos/*
+!data/raw_videos/.gitkeep
+data/frames/
+data/autolabel/
+data/dataset/
+data/merged/
+data/labels/
+data/*.db
+data/runtime_settings.json

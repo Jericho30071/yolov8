@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TrafficSense · Login</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="login">
+  <form method="post" action="/login" class="card">
+    <h1>TrafficSense</h1>
+    <p class="muted">Traffic Light System with Vehicle Detection</p>
+    {% if error %}<p class="error">{{ error }}</p>{% endif %}
+    <label>Username <input name="username" required autofocus></label>
+    <label>Password <input name="password" type="password" required></label>
+    <button type="submit">Log in</button>
+  </form>
+</body>
+</html>

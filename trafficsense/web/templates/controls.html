@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+  <h2>Signal control</h2>
+  <p class="muted">Every command is logged with your username. Manual control suspends the adaptive loop until you resume.</p>
+  <div class="buttons">
+    <button data-cmd="resume">Resume adaptive</button>
+    <button data-cmd="fixed">Fixed-time mode</button>
+    <button data-cmd="emergency_stop" class="danger">Emergency stop (all red)</button>
+    <button data-cmd="off" class="secondary">Signal off</button>
+  </div>
+  <p id="cmd-msg" class="muted"></p>
+</section>
+<section class="lanes">
+  {% for lane in lanes %}
+  <div class="card lane-ctl">
+    <h3>{{ lane.id }} · {{ lane.name }}</h3>
+    <div class="light" id="ctl-light-{{ lane.id }}"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+    <div class="buttons">
+      <button data-cmd="manual" data-lane="{{ lane.id }}" data-color="green" class="g">Green</button>
+      <button data-cmd="manual" data-lane="{{ lane.id }}" data-color="yellow" class="y">Yellow</button>
+      <button data-cmd="manual" data-lane="{{ lane.id }}" data-color="red" class="r">Red</button>
+    </div>
+  </div>
+  {% endfor %}
+</section>
+{% endblock %}

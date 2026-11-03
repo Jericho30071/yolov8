@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+{% if msg %}<p class="card ok">{{ msg }}</p>{% endif %}
+{% if not monitored %}
+<p class="card">No lane has a camera source configured. Set <code>source</code> for a lane in config.yaml.</p>
+{% endif %}
+{% for lane in monitored %}
+<section class="card camera">
+  <h2>{{ lane.id }} · {{ lane.name }} ({{ lane.direction }}) <span class="muted">— playing {{ current[lane.id] }}</span></h2>
+  <div class="camera-grid">
+    <img class="feed" src="/video/{{ lane.id }}" alt="Live feed {{ lane.id }}">
+    <dl class="kv" id="cam-{{ lane.id }}"></dl>
+  </div>
+  <div class="grid-form">
+    <form method="post" action="/upload/{{ lane.id }}" enctype="multipart/form-data" class="source-form">
+      <label>Upload a video (mp4, avi, mov, mkv)
+        <input type="file" name="file" accept="video/*" required>
+      </label>
+      <button type="submit">Upload &amp; play</button>
+    </form>
+    <form method="post" action="/source/{{ lane.id }}" class="source-form">
+      <label>Or play an existing source
+        <select name="source">
+          {% for v in videos %}<option value="{{ v }}" {{ 'selected' if v == current[lane.id] }}>{{ v }}</option>{% endfor %}
+          <option value="0">Webcam 0</option>
+          <option value="1">Webcam 1</option>
+        </select>
+      </label>
+      <button type="submit">Play</button>
+    </form>
+  </div>
+</section>
+{% endfor %}
+{% endblock %}

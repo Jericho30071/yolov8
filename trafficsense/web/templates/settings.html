@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+  <h2>Signal timing</h2>
+  {% if saved %}<p class="ok">Saved. The new timing applies from the next phase and is kept after restart.</p>{% endif %}
+  <form method="post" action="/settings" class="grid-form">
+    <label>Fixed green (s) <input name="fixed_green" type="number" step="0.5" value="{{ signal.fixed_green }}"></label>
+    <label>Min green (s) <input name="min_green" type="number" step="0.5" value="{{ signal.min_green }}"></label>
+    <label>Max green (s) <input name="max_green" type="number" step="0.5" value="{{ signal.max_green }}"></label>
+    <label>Empty timeout (s) <input name="empty_timeout" type="number" step="0.5" value="{{ signal.empty_timeout }}"></label>
+    <label>Yellow (s) <input name="yellow" type="number" step="0.5" value="{{ signal.yellow }}"></label>
+    <label>All-red (s) <input name="all_red" type="number" step="0.5" value="{{ signal.all_red }}"></label>
+    <label>Base green (s) <input name="base_green" type="number" step="0.5" value="{{ signal.base_green }}"></label>
+    <label>Seconds per vehicle <input name="per_vehicle" type="number" step="0.5" value="{{ signal.per_vehicle }}"></label>
+    <label class="check"><input name="count_based" type="checkbox" value="true" {{ 'checked' if signal.count_based }}> Count-based green</label>
+    <label class="check"><input name="skip_empty_lanes" type="checkbox" value="true" {{ 'checked' if signal.skip_empty_lanes }}> Skip empty lanes</label>
+    {% if user.role == 'admin' %}<button type="submit">Save timing</button>{% else %}<p class="muted">Only administrators can change settings.</p>{% endif %}
+  </form>
+</section>
+<section class="card">
+  <h2>Registered devices</h2>
+  <table>
+    <thead><tr><th>Type</th><th>Name</th><th>Lane</th><th>Details</th><th>Status</th></tr></thead>
+    <tbody>{% for d in devices %}<tr><td>{{ d.kind }}</td><td>{{ d.name }}</td><td>{{ d.lane_id or '' }}</td><td>{{ d.details }}</td><td>{{ d.status }}</td></tr>{% endfor %}</tbody>
+  </table>
+</section>
+{% if user.role == 'admin' %}
+<section class="card">
+  <h2>Users</h2>
+  <table>
+    <thead><tr><th>Username</th><th>Role</th><th>Created</th></tr></thead>
+    <tbody>{% for u in users %}<tr><td>{{ u.username }}</td><td>{{ u.role }}</td><td>{{ u.created_at.strftime('%Y-%m-%d %H:%M') }}</td></tr>{% endfor %}</tbody>
+  </table>
+  <form method="post" action="/users" class="grid-form">
+    <label>Username <input name="username" required></label>
+    <label>Password <input name="password" type="password" required></label>
+    <label>Role <select name="role"><option value="personnel">Traffic personnel</option><option value="admin">Administrator</option></select></label>
+    <button type="submit">Add user</button>
+  </form>
+</section>
+{% endif %}
+{% endblock %}
